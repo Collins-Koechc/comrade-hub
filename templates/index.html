@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComradeHub(CH)-past papers & notes</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+</head>
+ <body>
+    {% if is_admin %}
+    <div class="admin-toolbar" style="background-color: #1e3a8a; color: white; padding: 10px 20px; font-weight: bold; display:flex; justify-content: space-between; align-items:center ; font-size: 0.9rem;">
+        <span>Admin Mode Active(collins)</span>
+        <div>
+            <a href="/admin-logout" style="color: #fca5a5;text-decoration: none; margin-left:15px; font-weight: bold;">Lock Out Control</a>
+        </div>
+    </div>
+    {% endif %}
+ <header>
+    <div style="width: 100%; background: #ffffff; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-family: 'Segoe UI', system-ui, sans-serif; box-sizing: border-box;">
+    <div style="max-width: 1000px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; box-sizing: border-box;">
+        
+        <!-- Left Side: Sleek Professional Branding Alignment -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <img src="{{ url_for('static', filename='cc.png') }}" alt="CH Logo" style="height: 40px; width: auto; object-fit: contain; border-radius: 6px;">
+            <div>
+                <h1 style="font-size: 1.4rem; margin: 0; font-weight: 850; letter-spacing: -0.5px; color: #1e3a8a; line-height: 1.1;">
+                    Comrade<span style="color: #3b82f6;">Hub</span>
+                </h1>
+                <span style="font-size: 0.75rem; color: #6b7280; font-weight: 600; text-transform: uppercase;">Repository Matrix</span>
+            </div>
+        </div>
+
+        <!-- Center Context: Subtle tagline ticker -->
+        <div style="font-size: 0.85rem; color: #4b5563; font-style: italic; background: #f0fdf4; border: 1px solid #d1fae5; padding: 6px 14px; border-radius: 20px; font-weight: 500;">
+            🤝 "Give what you have, take what you need!"
+        </div>
+
+        <!-- Right Side: Interface Actions status -->
+        <div style="font-size: 0.85rem; font-weight: 600;">
+            {% if is_admin %}
+                <span style="color: #059669; display: flex; align-items: center; gap: 6px;">
+                    <span style="height: 8px; width: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span> 
+                    Collins (Admin)
+                </span>
+            {% else %}
+                <span style="color: #6b7280;">🔒 Guest Student</span>
+            {% endif %}
+        </div>
+
+    </div>
+ </div>
+
+ <!-- Subtle App Intro Sub-Banner Box -->
+ <div class="redader-main" style="margin-top: 20px; margin-bottom: -10px;">
+     <div style="background: #ffffff; border: 1px solid #e5e7eb; padding: 15px 20px; border-radius: 8px; font-family: 'Segoe UI', sans-serif;">
+         <p style="font-size: 0.95rem; margin: 0; color: #4b5563; line-height: 1.5;">
+             Welcome to the shared collective. Drop revision materials, exam papers, or lecture snapshots below to assist your classmates.
+         </p>
+     </div>
+ </div>
+ </header> 
+  
+  <div class="redader-main">
+<main>
+    {% with messages = get_flashed_messages() %}
+       {% if messages %}
+         <div class="flash-messages" style="background-color: #d1e7dd; color: #0f5132; padding: 15px; margin-bottom: 20px; border: 1px solid #badbcc; border-radius: 4px; font-weight: bold;text-align: center; transition: opacity 0.5s ease;">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+            <p style="margin-top: 10px;"><a href="/" style="color: #0f5132; text-decoration: underline;">[Dismiss Message]</a></p>
+         </div>
+        {% endif %}
+    {% endwith %}    
+
+    <section>
+    <h2>Search Revision Materials</h2>
+    <form action="/search" method="GET">
+    <input type="text" name="query" placeholder="🔍Search by  Name or Units code (e.g., Descrete maths or C101,Descrete maths)">
+    <button type="submit">Search</button>
+     </form>
+    </section>
+
+    <section>
+        <h2>Upload Materials</h2>
+        <p style="font-size: 0.8rem; color: #d97706; background: #fffbeb; border: 1px solid #fef3c7; padding: 8px 12px; border-radius: 6px; font-weight: 600; margin-bottom: 12px; font-family: sans-serif;">
+            💡 Pro-Tip: Include the School abbreviation in the name field (e.g., SEKU, KU, UoN) so comrades can filter by institution!
+        </p>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="file" id="paper_file" name="paper_file" accept=".pdf, .doc, .pptx, .ppt, .xls, .xlsx,.key, .csv, .webp, .txt, .rtf,.odt, .7z, .rar, .zip,.docx, .txt, image/*" required>
+            <input type="text" name="unit_code" placeholder=" Name or unit_code(e.g.,Descrete mathh Or C100)" required>
+            <input type="text" name="year" placeholder="Year(e.g.,2025)" required>
+            <button type="submit" >Upload paper/document/photo</button>
+        </form>
+    </section>
+
+    <section>
+     <div class="section-title-container">
+        <h2>📁 Available Materials</h2>
+        <div class="live-indicator">
+            <span class="pulse-dot"></span>
+            <span>Repository Active</span>
+        </div>
+     </div>
+        {% if is_admin %}
+          <p style="background-color: #e0e7ff; color: #3730a3; padding:10px; border-radius:4px; font-weight:bold; display: inline-block; margin-bottom: 15px;">
+               📈 Total Site Visits:{{ total_visits }}
+          </p>
+        {% endif %}
+
+        <ul class="materials-grid">
+            {% for file in files %}
+            <li class="materials-card">
+                <div class="card-top" style="display: flex; flex-direction: column; align-items:flex-start; gap:8px; width: 100%;">
+                {% if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg') or file.lower().endswith('.png') or file.lower().endswith('.webp') %}
+                <span class="badge-ext image">IMG DOC</span>
+                <div class="icon-box">🖼️</div>
+                {% elif file.lower().endswith('.pdf') %}
+                <span class="badge-ext pdf">PDF</span>
+                <div class="icon-box">📕</div>
+                {% elif file.lower().endswith('.ppt') or file.lower().endswith('.pptx') or file.lower().endswith('.pps') or file.lower().endswith('.key') %}
+                <span class="badge-ext ppt">PPT</span>
+                <div class="icon-box">🔸</div>
+                {% elif file.lower().endswith('.doc') or file.lower().endswith('.docx') or file.lower().endswith('.txt') or file.lower().endswith('.rtf') or file.lower().endswith('.odt') %}
+                <span class="badge-ext word">WORD</span>
+                <div class="icon-box">📝</div>
+                {% elif file.lower().endswith('.xls') or file.lower().endswith('.xlsx') or file.lower().endswith('.csv') %}
+                <span class="badge-ext excel">EXCEL</span>
+                <div class="icon-box">📊</div>
+                 {% elif file.lower().endswith('.zip') or file.lower().endswith('.rar') or file.lower().endswith('.7z') %}
+                 <span class="badge-ext zip">ZIP</span>
+                 <div class="icon-box">📦</div>
+                {% else %}
+                <span class="badge-ext file">FILE</span>
+                <div class="icon-box">📁</div>
+                {% endif %}
+            
+                <a href="{{url_for('view_file', filename=file)}}" target="_blank">
+                    {{file}}
+                </a>
+            </div>
+            <div class="card-admin-box" style="margin-top: 5px; padding: 4px 0; border-top: 1px dashed #e5e7eb; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    
+    <!-- 👁️ Student View Counter (Visible to everyone) -->
+    <span style="color: #6b7280; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
+        👁️ {{ file_views.get(file, 0) }} reads
+    </span>
+
+    <!-- 🔒 RESTORED ACTIONS: Visible only when Collins is logged in -->
+    {% if is_admin %}
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <!-- Active Admin Tag -->
+            <span style="color: #1e3a8a; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">[Admin]</span>
+            
+            <!-- Restored Delete Button (Matches your original deletion routing structure) -->
+            <a href="{{ url_for('delete_file', filename=file) }}" 
+               onclick="return confirm('Are you sure you want to permanently delete this material?');"
+               style="background-color: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: background 0.2s;"
+               onmouseover="this.style.backgroundColor='#fee2e2'" 
+               onmouseout="this.style.backgroundColor='#fef2f2'">
+                🗑️ Delete File
+            </a>
+        </div>
+    {% endif %}
+    
+</div>
+
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+</main>
+</div>
+
+<footer style="background: #ffffff; border-top: 1px solid #e5e7eb; padding: 40px 20px; font-family: 'Segoe UI', system-ui, sans-serif; margin-top: 50px; width: 100%; box-sizing: border-box; display: block; clear: both;">
+    <div style="max-width: 1000px; margin: 0 auto; box-sizing: border-box;">
+        
+        <!-- Table structure guarantees columns will stay organized inside the box -->
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+            <tr>
+                <!-- Column 1: Platform Purpose -->
+                <td style="width: 50%; vertical-align: top; padding-right: 30px; box-sizing: border-box;">
+                    <h3 style="font-size: 1.1rem; color: #1e3a8a; margin: 0 0 12px 0; font-weight: 700;">ComradeHub Repository</h3>
+                    <p style="font-size: 0.85rem; color: #4b5563; line-height: 1.6; margin: 0;">
+                        ComradeHub is an open-source academic repository designed by students, for students. We facilitate peer-to-peer sharing of revision materials, past examination papers, and lecture summaries to support collective academic excellence across institutions.
+                    </p>
+                </td>
+                
+                <!-- Column 2: Legal Options -->
+                <td style="width: 25%; vertical-align: top; box-sizing: border-box;">
+                    <h4 style="font-size: 0.85rem; color: #1e3a8a; margin: 0 0 12px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Legal & Trust</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; line-height: 2;">
+                        <li><a href="/privacy-policy" style="color: #6b7280; text-decoration: none;">Privacy Policy</a></li>
+                        <li><a href="/terms-of-service" style="color: #6b7280; text-decoration: none;">Terms of Service</a></li>
+                        <li><a href="/dmca-copyright" style="color: #6b7280; text-decoration: none;">DMCA / Copyright Notice</a></li>
+                    </ul>
+                </td>
+                
+                <!-- Column 3: Support -->
+                <td style="width: 25%; vertical-align: top; box-sizing: border-box;">
+                    <h4 style="font-size: 0.85rem; color: #1e3a8a; margin: 0 0 12px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Support</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; line-height: 2;">
+                        <li><a href="/about" style="color: #6b7280; text-decoration: none;">About Our Platform</a></li>
+                        <li><a href="/contact" style="color: #6b7280; text-decoration: none;">Contact Desk</a></li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Bottom Copyright Row -->
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #f3f4f6; font-size: 0.8rem; color: #9ca3af; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div>
+                &copy; 2026 ComradeHub Framework. Built for academic development. All rights reserved.
+            </div>
+            <div style="font-size: 0.75rem; color: #cbd5e1;">
+                Disclaimer: User-generated content is hosted for educational review purposes only.
+            </div>
+        </div>
+
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading: {{ filename }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<!-- 🎯 APPLICATION SPOT 1: Set padding-top to 0 so the viewport sits neatly below the sticky header navbar -->
+<body style="padding-top: 0 !important; background-color: #f4f6f9; margin: 0;">
+
+    <!-- 🎯 APPLICATION SPOT 2: This new modern app header navbar completely replaces your old <header> block -->
+    <div style="width: 100%; background: #ffffff; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-family: 'Segoe UI', system-ui, sans-serif; box-sizing: border-box;">
+        <div style="max-width: 1000px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-sizing: border-box;">
+            
+            <!-- Upgraded, easy-to-click Return Button -->
+            <a href="/" style="display: inline-flex; align-items: center; gap: 8px; background-color: #f3f4f6; color: #1f2937; padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 0.9rem; font-family: sans-serif; transition: all 0.2s ease; border: 1px solid #e5e7eb;">
+                ← Return to Hub
+            </a>
+
+            <!-- Compact right-aligned application title -->
+            <div style="text-align: right;">
+                <h1 style="font-size: 1.2rem; margin: 0; font-weight: 850; color: #1e3a8a; font-family: 'Segoe UI', sans-serif; line-height: 1.1;">
+                    Comrade<span style="color: #3b82f6;">Hub</span> <span style="font-weight: 400; color: #6b7280; font-size: 0.9rem;">Reader</span>
+                </h1>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 🎯 APPLICATION SPOT 3: This main section safely holds your original image, PDF, and text note preview engines -->
+    <div class="redader-main" style="margin-top: 25px;">
+        <main>
+            
+            <!-- Clean document wrapper header card -->
+            <div style="background: #ffffff; border: 1px solid #e5e7eb; padding: 18px 20px; border-radius: 12px 12px 0 0; font-family: 'Segoe UI', sans-serif; border-bottom: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <h2 style="font-size: 1.15rem; margin: 0; color: #1f2937; font-weight: 700; display: flex; align-items: center; gap: 8px; word-break: break-all;">
+                    <span>📄 Document:</span> 
+                    <span style="font-weight: 500; color: #4b5563;">{{ filename }}</span>
+                </h2>
+            </div>
+
+            <section class="viewer-container" style="background: #ffffff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 0 0 12px 12px; margin-top: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                
+                {% if extension.lower() in ['jpg', 'jpeg', 'png', 'webp'] %}
+                    <div class="responsive-image-wrapper">
+                        <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="{{ filename }}">
+                    </div>
+                    <p style="text-align: center; margin-top: 20px; margin-bottom: 5px;">
+                        <a href="{{ url_for('static', filename='uploads/' + filename) }}" download class="btn-download" style="background-color: #2563eb;">Download Study Snapshot</a>
+                    </p>
+
+                {% elif extension.lower() == 'pdf' %}
+                    <div class="responsive-frame-wrapper">
+                        <iframe src="{{ url_for('static', filename='uploads/' + filename) }}"></iframe>
+                    </div>
+                    <p style="text-align: center; margin-top: 20px; margin-bottom: 5px;">
+                        <a href="{{ url_for('static', filename='uploads/' + filename) }}" download class="btn-download" style="background-color: #2563eb;">Download PDF Document</a>
+                    </p>
+
+                {% elif extension.lower() == 'txt' %}
+                    <div class="responsive-frame-wrapper" style="height: auto; padding-bottom: 0; overflow: visible;">
+                        <pre style="margin: 0; border: none; padding: 0; font-family: monospace;">{{ text_content }}</pre>
+                    </div>
+                    <p style="text-align: center; margin-top: 20px; margin-bottom: 5px;">
+                        <a href="{{ url_for('static', filename='uploads/' + filename) }}" download class="btn-download" style="background-color: #2563eb;">Download Text Note</a>
+                    </p>
+                       
+                {% else %}
+                    <div class="fallback-card" style="border: none; padding: 30px 15px; font-family: 'Segoe UI', sans-serif;">
+                        <div style="font-size: 3.5rem; margin-bottom: 15px; user-select: none;">📦</div>
+                        <h3 style="color: #1f2937; font-weight: 700; margin-bottom: 8px; font-size: 1.2rem;">Direct Preview Unavailable</h3>
+                        <p style="color: #6b7280; max-width: 480px; margin: 0 auto 20px auto; font-size: 0.9rem; line-height: 1.5;">
+                            The <strong>.{{ extension.upper() }}</strong> document layout requires local standalone applications to read internal elements natively.
+                        </p>
+                        <a href="{{ url_for('static', filename='uploads/' + filename) }}" download class="btn-download" style="background-color: #10b981;">Download Material File</a>
+                    </div>
+                {% endif %}
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Premium App Clean Footer Layout -->
+    <footer style="margin-top: 60px; padding: 25px 20px; text-align: center; border-top: 1px solid #e5e7eb; font-family: sans-serif;">
+        <p style="color: #9ca3af; font-size: 0.8rem; margin: 0;">&copy; ComradeHub(CH). All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

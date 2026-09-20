@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>combradeHub - Admin login</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+
+</head>
+<body>
+    <header>
+        <h1>combradeHub Admin Panel</h1>
+        <p><a href="/"><<--Back to Public Dashboard</a></p>
+    </header>
+
+    <main style="max-width: 400px; margin:0 auto; padding: 10px;">
+       <section>
+        <h2>Enter Security Password</h2>
+        <form action="/admin-login" method="POST">
+            <input type="password" name="password" placeholder="Enter Admin Password" required>
+                 <p style="width:100%;padding:12px; margin-top:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; font-size: 1rem;">
+                    </p>
+            <button type="submit">unlocked Management tools</button>
+         </form>   
+       </section> 
+
+    </main>
+    
+</body>
+</html>
