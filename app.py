@@ -146,15 +146,21 @@ def view_file(filename):
     starts['file_views'][filename] += 1
     save_status(starts)    
     
-    # 🎯 EXTRACT FILE EXTENSION CLEANLY
     file_extension = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
     
-    # Renders your custom styled layout file structure beautifully
+    original_url = urls[filename]
+    download_url = original_url
+    
+    # 🎯 ATTACHMENT FLAG INJECTION: Automatically converts preview links to direct-download attachments
+    if "/upload/" in original_url:
+        download_url = original_url.replace("/upload/", "/upload/fl_attachment/")
+    
     return render_template(
         'view.html', 
         filename=filename, 
         extension=file_extension, 
-        cloudinary_url=urls[filename], 
+        cloudinary_url=original_url, 
+        download_url=download_url, # Clean variable injected specifically for downloads!
         text_content=""
     )
 
@@ -225,6 +231,7 @@ def contact(): return render_template('contact.html', is_admin=session.get('logg
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+
 
 
 
