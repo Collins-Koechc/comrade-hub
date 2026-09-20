@@ -72,7 +72,7 @@ def upload_file():
     if file and file.filename != '' and allowed_file(file.filename):
         filename_str = file.filename
         
-        # 🎯 FIX COMPLETE: Safely handles strings before formatting to stop crashes
+        # 🎯 FIX FIXED: We are now running .replace() cleanly on the string name_part variable
         if '.' in filename_str:
             name_part, ext_part = filename_str.rsplit('.', 1)
             ext = ext_part.lower()
@@ -85,7 +85,6 @@ def upload_file():
         cloudinary_public_id = f"{unit}_{year}_{original_title}"
         
         try:
-            # Stream file directly into Cloudinary
             upload_result = cloudinary.uploader.upload(
                 file,
                 public_id = cloudinary_public_id,
@@ -148,7 +147,6 @@ def view_file(filename):
     starts['file_views'][filename] += 1
     save_status(starts)    
     
-    # Redirects straight to original view link
     return redirect(urls[filename])
 
 @app.route('/delete/<filename>')
@@ -218,6 +216,7 @@ def contact(): return render_template('contact.html', is_admin=session.get('logg
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+
 
 
 
