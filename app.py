@@ -72,7 +72,6 @@ def upload_file():
     if file and file.filename != '' and allowed_file(file.filename):
         filename_str = file.filename
         
-        # 🎯 FIX FIXED: We are now running .replace() cleanly on the string name_part variable
         if '.' in filename_str:
             name_part, ext_part = filename_str.rsplit('.', 1)
             ext = ext_part.lower()
@@ -147,7 +146,17 @@ def view_file(filename):
     starts['file_views'][filename] += 1
     save_status(starts)    
     
-    return redirect(urls[filename])
+    # 🎯 EXTRACT FILE EXTENSION CLEANLY
+    file_extension = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    
+    # Renders your custom styled layout file structure beautifully
+    return render_template(
+        'view.html', 
+        filename=filename, 
+        extension=file_extension, 
+        cloudinary_url=urls[filename], 
+        text_content=""
+    )
 
 @app.route('/delete/<filename>')
 def delete_file(filename):
@@ -216,6 +225,7 @@ def contact(): return render_template('contact.html', is_admin=session.get('logg
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+
 
 
 
