@@ -119,11 +119,11 @@ def upload_file():
     if file and file.filename != '' and allowed_file(file.filename):
         filename_str = file.filename
         
-        # 🎯 BUG FIX VERIFIED: Correct structural extraction from parts index list
+        # 🎯 BUG FIX LOCKED IN: Extracting accurate parts using list indexes safely
         if '.' in filename_str:
             parts = filename_str.rsplit('.', 1)
-            name_part = parts[0]
-            ext = parts[1].lower()
+            name_part = str(parts[0])
+            ext = str(parts[1]).lower()
             original_title = name_part.replace(" ", "_").replace(".", "_")
         else:
             original_title = filename_str.replace(" ", "_")
