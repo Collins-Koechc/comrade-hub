@@ -119,7 +119,7 @@ def upload_file():
     if file and file.filename != '' and allowed_file(file.filename):
         filename_str = file.filename
         
-        # 🎯 BUG FIX VERIFIED: Correct string object separation variables extracted from list indexes
+        # 🎯 BUG FIX VERIFIED: Safely extracting string values from list split operation 
         if '.' in filename_str:
             parts = filename_str.rsplit('.', 1)
             name_part = str(parts[0])
@@ -233,7 +233,7 @@ def delete_file(filename):
     return redirect('/')
   
 @app.route('/search', methods=['GET'])
-def serch_materials():
+def search_materials():
     query = request.args.get('query', '').strip().lower()
     total_visits = 100
     file_views = {}
