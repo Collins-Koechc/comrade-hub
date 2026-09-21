@@ -19,7 +19,6 @@
     <div style="width: 100%; background: #ffffff; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-family: 'Segoe UI', system-ui, sans-serif; box-sizing: border-box;">
     <div style="max-width: 1000px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; box-sizing: border-box;">
         
-        <!-- Left Side: Sleek Professional Branding Alignment -->
         <div style="display: flex; align-items: center; gap: 12px;">
             <img src="{{ url_for('static', filename='cc.png') }}" alt="CH Logo" style="height: 40px; width: auto; object-fit: contain; border-radius: 6px;">
             <div>
@@ -30,12 +29,10 @@
             </div>
         </div>
 
-        <!-- Center Context: Subtle tagline ticker -->
         <div style="font-size: 0.85rem; color: #4b5563; font-style: italic; background: #f0fdf4; border: 1px solid #d1fae5; padding: 6px 14px; border-radius: 20px; font-weight: 500;">
             🤝 "Give what you have, take what you need!"
         </div>
 
-        <!-- Right Side: Interface Actions status -->
         <div style="font-size: 0.85rem; font-weight: 600;">
             {% if is_admin %}
                 <span style="color: #059669; display: flex; align-items: center; gap: 6px;">
@@ -50,7 +47,6 @@
     </div>
  </div>
 
- <!-- Subtle App Intro Sub-Banner Box -->
  <div class="redader-main" style="margin-top: 20px; margin-bottom: -10px;">
      <div style="background: #ffffff; border: 1px solid #e5e7eb; padding: 15px 20px; border-radius: 8px; font-family: 'Segoe UI', sans-serif;">
          <p style="font-size: 0.95rem; margin: 0; color: #4b5563; line-height: 1.5;">
@@ -76,7 +72,7 @@
     <section>
     <h2>Search Revision Materials</h2>
     <form action="/search" method="GET">
-    <input type="text" name="query" placeholder="🔍Search by  Name or Units code (e.g., Descrete maths or C101,Descrete maths)">
+    <input type="text" name="query" placeholder="🔍Search by Name or Units code (e.g., Discrete maths or C101)">
     <button type="submit">Search</button>
      </form>
     </section>
@@ -87,8 +83,8 @@
             💡 Pro-Tip: Include the School abbreviation in the name field (e.g., SEKU, KU, UoN) so comrades can filter by institution!
         </p>
         <form action="/upload" method="POST" enctype="multipart/form-data">
-            <input type="file" id="paper_file" name="paper_file" accept=".pdf, .doc, .pptx, .ppt, .xls, .xlsx,.key, .csv, .webp, .txt, .rtf,.odt, .7z, .rar, .zip,.docx, .txt, image/*" required>
-            <input type="text" name="unit_code" placeholder=" Name or unit_code(e.g.,Descrete mathh Or C100)" required>
+            <input type="file" id="paper_file" name="paper_file" accept=".pdf, .doc, .pptx, .ppt, .xls, .xlsx,.key, .csv, .webp, .txt, .rtf,.odt, .7z, .rar, .zip,.docx, image/*" required>
+            <input type="text" name="unit_code" placeholder=" Name or unit_code(e.g.,Discrete math Or C100)" required>
             <input type="text" name="year" placeholder="Year(e.g.,2025)" required>
             <button type="submit" >Upload paper/document/photo</button>
         </form>
@@ -104,7 +100,7 @@
      </div>
         {% if is_admin %}
           <p style="background-color: #e0e7ff; color: #3730a3; padding:10px; border-radius:4px; font-weight:bold; display: inline-block; margin-bottom: 15px;">
-               📈 Total Site Visits:{{ total_visits }}
+               📈 Total Site Visits: {{ total_visits }}
           </p>
         {% endif %}
 
@@ -139,32 +135,27 @@
                     {{file}}
                 </a>
             </div>
-            <div class="card-admin-box" style="margin-top: 5px; padding: 4px 0; border-top: 1px dashed #e5e7eb; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-    
-    <!-- 👁️ Student View Counter (Visible to everyone) -->
-    <span style="color: #6b7280; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
-        👁️ {{ file_views.get(file, 0) }} reads
-    </span>
-
-    <!-- 🔒 RESTORED ACTIONS: Visible only when Collins is logged in -->
-    {% if is_admin %}
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <!-- Active Admin Tag -->
-            <span style="color: #1e3a8a; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">[Admin]</span>
             
-            <!-- Restored Delete Button (Matches your original deletion routing structure) -->
-            <a href="{{ url_for('delete_file', filename=file) }}" 
-               onclick="return confirm('Are you sure you want to permanently delete this material?');"
-               style="background-color: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: background 0.2s;"
-               onmouseover="this.style.backgroundColor='#fee2e2'" 
-               onmouseout="this.style.backgroundColor='#fef2f2'">
-                🗑️ Delete File
-            </a>
-        </div>
-    {% endif %}
-    
-</div>
+            <div class="card-admin-box" style="margin-top: 5px; padding: 4px 0; border-top: 1px dashed #e5e7eb; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <!-- 👁️ Student View Counter (Safely handles dynamic checks) -->
+                <span style="color: #6b7280; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
+                    👁️ {{ file_views.get(file, 0) }} reads
+                </span>
 
+                <!-- 🔒 ACTIONS: Visible only when Collins is logged in -->
+                {% if is_admin %}
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #1e3a8a; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">[Admin]</span>
+                        <a href="{{ url_for('delete_file', filename=file) }}" 
+                           onclick="return confirm('Are you sure you want to permanently delete this material?');"
+                           style="background-color: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: background 0.2s;"
+                           onmouseover="this.style.backgroundColor='#fee2e2'" 
+                           onmouseout="this.style.backgroundColor='#fef2f2'">
+                            🗑️ Delete File
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
             </li>
             {% endfor %}
         </ul>
@@ -175,10 +166,8 @@
 <footer style="background: #ffffff; border-top: 1px solid #e5e7eb; padding: 40px 20px; font-family: 'Segoe UI', system-ui, sans-serif; margin-top: 50px; width: 100%; box-sizing: border-box; display: block; clear: both;">
     <div style="max-width: 1000px; margin: 0 auto; box-sizing: border-box;">
         
-        <!-- Table structure guarantees columns will stay organized inside the box -->
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
-                <!-- Column 1: Platform Purpose -->
                 <td style="width: 50%; vertical-align: top; padding-right: 30px; box-sizing: border-box;">
                     <h3 style="font-size: 1.1rem; color: #1e3a8a; margin: 0 0 12px 0; font-weight: 700;">ComradeHub Repository</h3>
                     <p style="font-size: 0.85rem; color: #4b5563; line-height: 1.6; margin: 0;">
@@ -186,7 +175,6 @@
                     </p>
                 </td>
                 
-                <!-- Column 2: Legal Options -->
                 <td style="width: 25%; vertical-align: top; box-sizing: border-box;">
                     <h4 style="font-size: 0.85rem; color: #1e3a8a; margin: 0 0 12px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Legal & Trust</h4>
                     <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; line-height: 2;">
@@ -196,7 +184,6 @@
                     </ul>
                 </td>
                 
-                <!-- Column 3: Support -->
                 <td style="width: 25%; vertical-align: top; box-sizing: border-box;">
                     <h4 style="font-size: 0.85rem; color: #1e3a8a; margin: 0 0 12px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Support</h4>
                     <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; line-height: 2;">
@@ -207,7 +194,6 @@
             </tr>
         </table>
 
-        <!-- Bottom Copyright Row -->
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #f3f4f6; font-size: 0.8rem; color: #9ca3af; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <div>
                 &copy; 2026 ComradeHub Framework. Built for academic development. All rights reserved.
