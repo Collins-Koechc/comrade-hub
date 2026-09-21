@@ -119,7 +119,7 @@ def upload_file():
     if file and file.filename != '' and allowed_file(file.filename):
         filename_str = file.filename
         
-        # 🎯 BUG FIX LOCKED IN: Extracting accurate parts using list indexes safely
+        # 🎯 BUG FIX CONFIRMED: Correct extraction using exact index list positions
         if '.' in filename_str:
             parts = filename_str.rsplit('.', 1)
             name_part = str(parts[0])
