@@ -114,8 +114,8 @@ def upload_file():
         filename_str = file.filename
         if '.' in filename_str:
             parts = filename_str.rsplit('.', 1)
-            name_part = parts[0]
-            ext = parts[1].lower()
+            name_part = parts[0] # Fixed: Get the string name part
+            ext = parts[1].lower() # Fixed: Get the string extension part
             original_title = name_part.replace(" ", "_").replace(".", "_")
         else:
             original_title = filename_str.replace(" ", "_")
@@ -149,6 +149,7 @@ def upload_file():
         except Exception as e:
             flash(f"❌ Upload system error: {str(e)}")
     return redirect('/')
+
 
 @app.route('/admin-login', methods=['GET','POST'])
 def admin_login():
