@@ -119,11 +119,11 @@ def upload_file():
     if file and file.filename != '' and allowed_file(file.filename):
         filename_str = file.filename
         
-        # 🎯 BUG FIX CONFIRMED: Correct extraction using exact index list positions
+        # 🎯 FIX VERIFIED: Safely parsing exact list index locations
         if '.' in filename_str:
             parts = filename_str.rsplit('.', 1)
-            name_part = str(parts[0])
-            ext = str(parts[1]).lower()
+            name_part = parts[0]
+            ext = parts[1].lower()
             original_title = name_part.replace(" ", "_").replace(".", "_")
         else:
             original_title = filename_str.replace(" ", "_")
@@ -286,3 +286,4 @@ def contact(): return render_template('contact.html', is_admin=session.get('logg
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+
