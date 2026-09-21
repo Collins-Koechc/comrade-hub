@@ -3,186 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comrade Hub - Viewing {{ filename }}</title>
+    <title>Quick Reader - {{ filename }}</title>
     <style>
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
-            --secondary: #64748b;
-            --secondary-hover: #475569;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --text-dark: #1e293b;
+            --bg-main: #0f172a; /* Dark theme focus for comfortable student reading */
+            --bg-card: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-main);
-            color: var(--text-dark);
-            margin: 0;
-            padding: 20px;
+            color: var(--text-light);
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Action Bar - Compact & Dynamic */
+        .reader-navbar {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-        }
-
-        .viewer-container {
-            width: 100%;
-            max-width: 1000px;
             background: var(--bg-card);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            padding: 24px;
-            box-sizing: border-box;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
         }
 
-        .viewer-header {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
+        .file-meta {
+            max-width: 60%;
         }
 
-        @media (min-width: 640px) {
-            .viewer-header {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-        }
-
-        .file-info h2 {
-            margin: 0 0 6px 0;
-            font-size: 1.5rem;
-            word-break: break-all;
+        .file-meta h1 {
+            font-size: 1rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-light);
+            margin-bottom: 2px;
         }
 
         .badge {
             display: inline-block;
-            background: #e0f2fe;
+            background: #38bdf8;
             color: #0369a1;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
         }
 
-        .button-group {
+        .nav-actions {
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 8px;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 6px;
             font-weight: 600;
             text-decoration: none;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border: none;
         }
 
-        .btn-back {
-            background-color: #f1f5f9;
-            color: var(--secondary);
-            border: 1px solid #cbd5e1;
+        .btn-close {
+            background: #334155;
+            color: var(--text-light);
         }
 
-        .btn-back:hover {
-            background-color: #e2e8f0;
-            color: var(--text-dark);
+        .btn-close:hover {
+            background: #475569;
         }
 
-        .btn-download {
-            background-color: var(--primary);
+        .btn-dl {
+            background: var(--primary);
             color: #ffffff;
         }
 
-        .btn-download:hover {
-            background-color: var(--primary-hover);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        .btn-dl:hover {
+            background: var(--primary-hover);
         }
 
-        .display-area {
+        /* Focus Workspace Mode */
+        .reader-workspace {
+            flex: 1;
             width: 100%;
-            min-height: 500px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            overflow: hidden;
+            height: calc(100vh - 65px);
+            background: #0b0f19;
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 1px solid #e2e8f0;
+            position: relative;
         }
 
+        /* Responsive Embedded Viewport */
         iframe {
             width: 100%;
-            height: 650px;
+            height: 100%;
             border: none;
+            background: #ffffff;
         }
 
         img {
             max-width: 100%;
-            height: auto;
-            max-height: 650px;
+            max-height: 100%;
             object-fit: contain;
             display: block;
         }
 
-        .fallback-box {
+        /* Premium Minimal Fallback Card */
+        .student-prompt-card {
             text-align: center;
-            padding: 40px 20px;
-            max-width: 450px;
+            padding: 32px;
+            max-width: 420px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
-        .fallback-icon {
-            font-size: 3.5rem;
+        .format-icon {
+            font-size: 3rem;
             margin-bottom: 16px;
+        }
+
+        .student-prompt-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        .student-prompt-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        /* Mobile Optimization Rules */
+        @media (max-width: 480px) {
+            .btn-text {
+                display: none; /* Hides text on tiny screens to save room, keeps emojis */
+            }
+            .btn {
+                padding: 8px 12px;
+            }
+            .file-meta {
+                max-width: 50%;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="viewer-container">
-        <div class="viewer-header">
-            <div class="file-info">
-                <h2>{{ filename }}</h2>
-                <span class="badge">{{ extension }} Document</span>
-            </div>
-            <div class="button-group">
-                <a href="/" class="btn btn-back">⬅️ Back to Repository</a>
-                <a href="{{ download_url }}" class="btn btn-download">📥 Download File</a>
-            </div>
+    <!-- Top Navigation Interface -->
+    <header class="reader-navbar">
+        <div class="file-meta">
+            <h1>{{ filename }}</h1>
+            <span class="badge">{{ extension }}</span>
         </div>
-
-        <div class="display-area">
-            {% if extension == 'pdf' %}
-                <iframe src="{{ cloudinary_url }}"></iframe>
-
-            {% elif extension in ['png', 'jpg', 'jpeg', 'webp'] %}
-                <img src="{{ cloudinary_url }}" alt="{{ filename }}">
-
-            {% elif extension in ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'] %}
-                <iframe src="https://live.com{{ cloudinary_url | urlencode }}"></iframe>
-
-            {% else %}
-                <div class="fallback-box">
-                    <div class="fallback-icon">📦</div>
-                    <h3>Preview Unavailable</h3>
-                    <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 20px;">
-                        This file format (.{{ extension }}) cannot be read directly inside your browser. 
-                    </p>
-                    <a href="{{ download_url }}" class="btn btn-download">Click Here to Download & Open</a>
-                </div>
-            {% endif %}
+        <div class="nav-actions">
+            <a href="/" class="btn btn-close" title="Back to Registry">
+                <span>⬅️</span> <span class="btn-text">Library</span>
+            </a>
+            <a href="{{ download_url }}" class="btn btn-dl" title="Save to Device">
+                <span>📥</span> <span class="btn-text">Download</span>
+            </a>
         </div>
-    </div>
+    </header>
+
+    <!-- Reading Mode Workspace -->
+    <main class="reader-workspace">
+        
+        <!-- 1. HIGH-SPEED PDF EMBED -->
+        {% if extension == 'pdf' %}
+            <iframe src="{{ cloudinary_url }}#toolbar=0&navpanes=0"></iframe>
+
+        <!-- 2. HIGH-SPEED IMAGE CONTAINER -->
+        {% elif extension in ['png', 'jpg', 'jpeg', 'webp'] %}
+            <img src="{{ cloudinary_url }}" alt="Resource Content Preview">
+
+        <!-- 3. SMART OFFICE & RESOURCE STANDBY DECK -->
+        {% else %}
+            <div class="student-prompt-card">
+                {% if extension in ['doc', 'docx'] %}
+                    <div class="format-icon">📝</div>
+                {% elif extension in ['ppt', 'pptx'] %}
+                    <div class="format-icon">📊</div>
+                {% elif extension in ['xls', 'xlsx'] %}
+                    <div class="format-icon">📈</div>
+                {% else %}
+                    <div class="format-icon">📚</div>
+                {% endif %}
+                
+                <h3>Open Material</h3>
+                <p>This <strong>.{{ extension }}</strong> revision document requires a native reader app. Grab it instantly below to study.</p>
+                <a href="{{ download_url }}" class="btn btn-dl" style="width: 100%; justify-content: center;">
+                    📥 Download Revision File
+                </a>
+            </div>
+        {% endif %}
+
+    </main>
 
 </body>
 </html>
+
