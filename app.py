@@ -7,7 +7,8 @@ import cloudinary.uploader
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+# STORAGE SECURITY GATE: Hard limit uploads to 5MB max to prevent storage abuse
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'collins77.')
 
 app.secret_key = os.environ.get('SECRET_KEY', 'comrade_hub_super_secret_session_key')
@@ -68,7 +69,6 @@ ALLOWED_EXTENSIONS = {'pdf','png','jpg','jpeg','doc','docx','txt','rtf','odt','p
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[-1].lower() in ALLOWED_EXTENSIONS
-
 @app.route('/')
 def home():
     is_admin = session.get('logged_in') == True
@@ -77,21 +77,40 @@ def home():
     file_views = {}
     cloudinary_urls = {}
     
+    # 🧭 Secure Pagination Query Param Handling
+    try:
+        page = int(request.args.get('page', 1))
+        if page < 1: page = 1
+    except ValueError:
+        page = 1
+        
+    per_page = 20
+    offset = (page - 1) * per_page
+
     conn = get_db_connection()
     if not conn:
         flash("⚠️ System Warning: Database disconnected. Please contact admin.")
-        return render_template('index.html', files=[], is_admin=is_admin, total_visits=100, file_views={})
+        return render_template('index.html', files=[], is_admin=is_admin, total_visits=100, file_views={}, page=page, has_next=False)
 
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        # Fetch Total Visit Count Metrics
         cur.execute("SELECT value FROM analytics WHERE key = 'total_visits';")
         res = cur.fetchone()
         if res:
             total_visits = res['value']
-        cur.execute("SELECT filename, cloudinary_url, views FROM repo_files;")
+            
+        # ⚡ Fast Batch Loading: Limit resource payload to 20 elements per render block
+        cur.execute("SELECT filename, cloudinary_url, views FROM repo_files ORDER BY filename ASC LIMIT %s OFFSET %s;", (per_page, offset))
         rows = cur.fetchall()
         for row in rows:
             cloudinary_urls[row['filename']] = row['cloudinary_url']
             file_views[row['filename']] = row['views']
+            
+        # Dynamic Counter to calculate matrix bounds
+        cur.execute("SELECT COUNT(*) FROM repo_files;")
+        total_files = cur.fetchone()['count']
+        has_next = (offset + per_page) < total_files
+            
         if 'has_visited' not in session:
             with conn.cursor() as cur:
                 cur.execute("UPDATE analytics SET value = value + 1 WHERE key = 'total_visits';")
@@ -101,7 +120,7 @@ def home():
     conn.close()
     
     files = list(cloudinary_urls.keys())
-    return render_template('index.html', files=files, is_admin=is_admin, total_visits=total_visits, file_views=file_views)
+    return render_template('index.html', files=files, is_admin=is_admin, total_visits=total_visits, file_views=file_views, page=page, has_next=has_next)
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'paper_file' not in request.files:
@@ -114,8 +133,8 @@ def upload_file():
         filename_str = file.filename
         if '.' in filename_str:
             parts = filename_str.rsplit('.', 1)
-            name_part = parts[0] # Fixed: Get the string name part
-            ext = parts[1].lower() # Fixed: Get the string extension part
+            name_part = parts[0]
+            ext = parts[1].lower()
             original_title = name_part.replace(" ", "_").replace(".", "_")
         else:
             original_title = filename_str.replace(" ", "_")
@@ -149,7 +168,6 @@ def upload_file():
         except Exception as e:
             flash(f"❌ Upload system error: {str(e)}")
     return redirect('/')
-
 
 @app.route('/admin-login', methods=['GET','POST'])
 def admin_login():
@@ -217,66 +235,4 @@ def delete_file(filename):
         cur.execute("DELETE FROM repo_files WHERE filename = %s;", (filename,))
     conn.commit()
     conn.close()
-    
-    try:
-        public_id = filename.rsplit('.', 1)[0] if '.' in filename else filename
-        cloudinary.uploader.destroy(public_id)
-    except Exception:
-        pass
-    flash(f"File '{filename}' removed permanently.")
     return redirect('/')
-
-@app.route('/search', methods=['GET'])
-def search_materials():
-    query = request.args.get('query', '').strip().lower()
-    is_admin = session.get('logged_in') == True
-    total_visits = 100
-    file_views = {}
-    cloudinary_urls = {}
-    
-    conn = get_db_connection()
-    if not conn:
-        flash("❌ Database offline: Search unavailable.")
-        return redirect('/')
-        
-    with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute("SELECT value FROM analytics WHERE key = 'total_visits';")
-        res = cur.fetchone()
-        if res:
-            total_visits = res['value']
-        cur.execute("SELECT filename, cloudinary_url, views FROM repo_files;")
-        rows = cur.fetchall()
-        for row in rows:
-            cloudinary_urls[row['filename']] = row['cloudinary_url']
-            file_views[row['filename']] = row['views']
-    conn.close()
-    
-    if not query:
-        return redirect('/')
-    all_files = list(cloudinary_urls.keys())
-    filtered_files = [file for file in all_files if query in file.lower()]
-    if not filtered_files:
-        flash(f"🔍 No materials found matching '{query}'. Be the first to upload it!")
-        return render_template('index.html', files=[], is_admin=is_admin, total_visits=total_visits, file_views=file_views)
-    return render_template('index.html', files=filtered_files, is_admin=is_admin, total_visits=total_visits, file_views=file_views)
-
-@app.errorhandler(413)
-def file_too_large(error):
-    flash("❌ File too big! Maximum size is 16MB.")
-    return redirect('/')
-
-@app.route('/privacy-policy')
-def privacy_policy(): return render_template('privacy.html', is_admin=session.get('logged_in', False))
-@app.route('/terms-of-service')
-def terms_of_service(): return render_template('terms.html', is_admin=session.get('logged_in', False))
-@app.route('/dmca-copyright')
-def dmca_copyright(): return render_template('dmca.html', is_admin=session.get('logged_in', False))
-@app.route('/about')
-def about(): return render_template('about.html', is_admin=session.get('logged_in', False))
-@app.route('/contact')
-def contact(): return render_template('contact.html', is_admin=session.get('logged_in', False))
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
-
