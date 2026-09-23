@@ -236,3 +236,51 @@ def delete_file(filename):
     conn.commit()
     conn.close()
     return redirect('/')
+@app.route('/search')
+def search_materials():
+    is_admin = session.get('logged_in') == True
+    session['is_admin'] = is_admin
+    
+    # 🔍 Extract the search term entered by the student
+    query = request.args.get('query', '').strip()
+    
+    if not query:
+        return redirect('/')
+        
+    file_views = {}
+    cloudinary_urls = {}
+    
+    conn = get_db_connection()
+    if not conn:
+        flash("⚠️ Search Error: Database connection lost.")
+        return redirect('/')
+        
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        # ⚡ Smart case-insensitive search matching institution, code, or name parameters
+        search_pattern = f"%{query}%"
+        cur.execute(
+            "SELECT filename, cloudinary_url, views FROM repo_files WHERE filename ILIKE %s ORDER BY filename ASC LIMIT 40;", 
+            (search_pattern,)
+        )
+        rows = cur.fetchall()
+        for row in rows:
+            cloudinary_urls[row['filename']] = row['cloudinary_url']
+            file_views[row['filename']] = row['views']
+    conn.close()
+    
+    matching_files = list(cloudinary_urls.keys())
+    
+    # Reuses your home layout to display search matches instantly on screen!
+    return render_template(
+        'index.html', 
+        files=matching_files, 
+        is_admin=is_admin, 
+        total_visits=100, 
+        file_views=file_views, 
+        page=1, 
+        has_next=False
+    )
+
+# ─── FINAL SERVER EXECUTION MATRIX GATEWAY ───
+if __name__ == '__main__':
+    app.run(debug=False)
