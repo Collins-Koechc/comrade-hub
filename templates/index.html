@@ -78,18 +78,118 @@
      </form>
     </section>
 
-    <section>
+        <section>
         <h2>Upload Materials</h2>
         <p style="font-size: 0.8rem; color: #d97706; background: #fffbeb; border: 1px solid #fef3c7; padding: 8px 12px; border-radius: 6px; font-weight: 600; margin-bottom: 12px; font-family: sans-serif;">
             💡 Pro-Tip: Include your Institution abbreviation in the name field (e.g., SEKU, KU, UoN, Nyeri Poly, KMTC) so comrades can filter cleanly!
         </p>
-        <form action="/upload" method="POST" enctype="multipart/form-data">
-            <input type="file" id="paper_file" name="paper_file" accept=".pdf, .doc, .pptx, .ppt, .xls, .xlsx,.key, .csv, .webp, .txt, .rtf,.odt, .7z, .rar, .zip,.docx, image/*" required onchange="if(this.files.size > 5242880){ alert('File too large! Please keep revision materials under 5MB to preserve campus mobile data loading speeds.'); this.value = ''; };">
+        
+        <!-- ⚡ Automated Compression Upload Form Frame -->
+        <form id="uploadEngineForm" action="/upload" method="POST" enctype="multipart/form-data">
+            <!-- Visible file input slot for students -->
+            <input type="file" id="paper_file" accept=".pdf, .doc, .pptx, .ppt, .xls, .xlsx, .key, .csv, .webp, .txt, .rtf, .odt, .7z, .rar, .zip, .docx, image/*" required>
+            
+            <!-- Hidden secure input slot that sends the light compressed file to app.py -->
+            <input type="file" id="hidden_compressed_file" name="paper_file" style="display: none;">
+            
             <input type="text" name="unit_code" placeholder=" Name or unit/subject code (e.g., Discrete math Or KNEC Module)" required>
             <input type="text" name="year" placeholder="Year(e.g., 2026)" required>
-            <button type="submit" >Upload paper/document/photo</button>
+            
+            <button type="submit" id="submitBtn" style="transition: all 0.2s ease;">Upload paper/document/photo</button>
         </form>
+
+        <!-- Dynamic Visual Status Loader -->
+        <div id="uploadStatusText" style="display: none; margin-top: 15px; font-size: 0.85rem; font-weight: 700; color: #1e3a8a; font-family: sans-serif; align-items: center; gap: 8px;">
+            <span style="display: inline-block; width: 12px; height: 12px; border: 2px solid #1e3a8a; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>
+            <span id="statusMessageString">Optimizing asset payloads...</span>
+        </div>
+
+        <style>
+            @keyframes spin { to { transform: rotate(360deg); } }
+        </style>
+
+        <!-- 🧠 High-Speed Browser Compression Script Logic Engine -->
+        <script>
+            document.getElementById('uploadEngineForm').addEventListener('submit', function(e) {
+                var fileInput = document.getElementById('paper_file');
+                var hiddenInput = document.getElementById('hidden_compressed_file');
+                var submitBtn = document.getElementById('submitBtn');
+                var statusContainer = document.getElementById('uploadStatusText');
+                var statusString = document.getElementById('statusMessageString');
+
+                if (!fileInput.files || fileInput.files.length === 0) return;
+                
+                var targetFile = fileInput.files[0];
+                
+                // 📸 If it's a phone camera photo image, compress it on the spot!
+                if (targetFile.type.startsWith('image/')) {
+                    e.preventDefault(); // Stop form from sending the heavy raw file immediately
+                    
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    statusContainer.style.display = 'flex';
+                    statusString.innerText = "⚡ Shrinking heavy image for instant network transfer...";
+
+                    var reader = new FileReader();
+                    reader.readAsDataURL(targetFile);
+                    reader.onload = function(event) {
+                        var img = new Image();
+                        img.src = event.target.result;
+                        img.onload = function() {
+                            var canvas = document.createElement('canvas');
+                            var ctx = canvas.getContext('2d');
+                            
+                            // Scale down dimensions to a crisp 1600px width max
+                            var max_width = 1600;
+                            var scale = max_width / img.width;
+                            if (img.width > max_width) {
+                                canvas.width = max_width;
+                                canvas.height = img.height * scale;
+                            } else {
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                            }
+                            
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            
+                            // Compress down to 70% quality (~350KB output layout file size)
+                            canvas.toBlob(function(blob) {
+                                var compressedFile = new File([blob], targetFile.name, {
+                                    type: "image/jpeg",
+                                    lastModified: Date.now()
+                                });
+                                
+                                // Insert the small compressed file back into the form submission pipeline
+                                var dataTransfer = new DataTransfer();
+                                dataTransfer.items.add(compressedFile);
+                                hiddenInput.files = dataTransfer.files;
+                                
+                                statusString.innerText = "🚀 Optimization complete! Saving to cloud vault...";
+                                document.getElementById('uploadEngineForm').submit();
+                            }, 'image/jpeg', 0.70);
+                        };
+                    };
+                } else {
+                    // 📕 For PDFs or Word Docs, make sure it is under your 15MB limit and let it pass through
+                    if (targetFile.size > 15728640) {
+                        e.preventDefault();
+                        alert('File too large! Please keep standard PDFs/Documents under 15MB to preserve campus mobile data loading speeds.');
+                        return;
+                    }
+                    
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    statusContainer.style.display = 'flex';
+                    statusString.innerText = "🚀 Routing data securely to cloud repository network...";
+                    
+                    var dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(targetFile);
+                    hiddenInput.files = dataTransfer.files;
+                }
+            });
+        </script>
     </section>
+
     <section>
      <div class="section-title-container">
         <h2>📁 Available Materials</h2>
