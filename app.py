@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 
 app = Flask(__name__)
 # STORAGE SECURITY GATE: Hard limit uploads to 5MB max to prevent storage abuse
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 15 * 1024 * 1024
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'collins77.')
 
 app.secret_key = os.environ.get('SECRET_KEY', 'comrade_hub_super_secret_session_key')
